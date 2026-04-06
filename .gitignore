@@ -1,0 +1,12 @@
+__pycache__/
+.history/
+.vscode/
+
+lex.yy.c
+smartmemai
+a.out
+
+input.c
+report.txt
+data.txt
+names.txt
