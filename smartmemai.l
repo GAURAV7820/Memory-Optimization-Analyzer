@@ -10,6 +10,7 @@ struct Variable{
     int isUsed;
     int isDuplicate;
     int line;
+    int scope;
 };
 
 struct Variable vars[MAX];
@@ -18,10 +19,11 @@ int varCount=0;
 char currentType[10];
 int declarationMode=0;
 int lineNo=1;
+int scope=0;
 
 int findVar(char *name){
-    for(int i=0;i<varCount;i++){
-        if(strcmp(vars[i].name,name)==0)
+    for(int i=varCount-1;i>=0;i--){
+        if(strcmp(vars[i].name,name)==0 && vars[i].scope==scope)
             return i;
     }
     return -1;
@@ -32,26 +34,42 @@ int findVar(char *name){
 
 \n { lineNo++; }
 
+"{" { scope++; }
+"}" { scope--; }
+
 (int|float|char|double|long) {
     strcpy(currentType,yytext);
     declarationMode=1;
 }
 
+[a-zA-Z_][a-zA-Z0-9_]*\([ \t]*\) { }
+
 [a-zA-Z_][a-zA-Z0-9_]* {
+    if(strcmp(yytext,"main")==0) return 0;
+
     if(declarationMode){
         int idx=findVar(yytext);
+
         if(idx==-1){
             strcpy(vars[varCount].name,yytext);
             strcpy(vars[varCount].type,currentType);
             vars[varCount].isUsed=0;
             vars[varCount].isDuplicate=0;
             vars[varCount].line=lineNo;
+            vars[varCount].scope=scope;
             varCount++;
         }else{
             vars[idx].isDuplicate=1;
         }
     }else{
-        int idx=findVar(yytext);
+        int idx=-1;
+        for(int i=varCount-1;i>=0;i--){
+            if(strcmp(vars[i].name,yytext)==0){
+                idx=i;
+                break;
+            }
+        }
+
         if(idx!=-1){
             vars[idx].isUsed=1;
         }
@@ -91,17 +109,20 @@ int main(){
 
     fprintf(report,"===== SMARTMEMAI ANALYSIS REPORT =====\n");
     fprintf(report,"\n--- Symbol Table ---\n");
-    fprintf(report,"Name\tType\tUsed\tLine\n");
+
+    fprintf(report,"%-8s %-8s %-8s %-6s %-5s\n","Name","Type","Used","Line","Scope");
+    fprintf(report,"--------------------------------------------------\n");
 
     FILE *data=fopen("data.txt","w");
     FILE *names=fopen("names.txt","w");
 
     for(int i=0;i<varCount;i++){
-        fprintf(report,"%s\t\t%s\t\t%s\t\t%d\n",
+        fprintf(report,"%-15s %-10s %-10s %-6d %-5d\n",
             vars[i].name,
             vars[i].type,
-            vars[i].isUsed?"Yes":"No",
-            vars[i].line);
+            vars[i].isUsed ? "Yes" : "No",
+            vars[i].line,
+            vars[i].scope);
 
         fprintf(data,"%d %d\n",vars[i].isUsed,vars[i].isDuplicate);
         fprintf(names,"%s\n",vars[i].name);
