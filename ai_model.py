@@ -1,94 +1,138 @@
+import re
+
 import numpy as np
 from sklearn.ensemble import RandomForestClassifier
 
-X = np.array([
-    [1, 0], 
-    [0, 0], 
-    [1, 1],  
-    [0, 1]   
-])
 
-y = np.array([0, 1, 2, 2])  
+def build_training_data():
+    samples = [
+        ([0, 0, 0, 0, 0], 0),
+        ([1, 0, 0, 4, 3], 0),
+        ([1, 1, 0, 4, 6], 1),
+        ([2, 0, 0, 8, 8], 1),
+        ([1, 0, 1, 4, 7], 1),
+        ([2, 1, 0, 8, 12], 1),
+        ([2, 1, 1, 8, 15], 2),
+        ([3, 1, 1, 12, 20], 2),
+        ([3, 2, 1, 16, 24], 2),
+        ([4, 2, 2, 20, 32], 2),
+        ([0, 1, 0, 0, 5], 1),
+        ([0, 0, 2, 0, 8], 2),
+    ]
 
-model = RandomForestClassifier(n_estimators=10, random_state=42)
-model.fit(X, y)
-
-
-data = []
-names = []
-
-try:
-    with open("data.txt") as f:
-        for line in f:
-            values = list(map(int, line.split()))
-            if len(values) == 2: 
-                data.append(values)
-except Exception as e:
-    print("Error reading data.txt:", e)
-
-try:
-    with open("names.txt") as f:
-        for line in f:
-            names.append(line.strip())
-except Exception as e:
-    print("Error reading names.txt:", e)
+    features = np.array([sample[0] for sample in samples])
+    labels = np.array([sample[1] for sample in samples])
+    return features, labels
 
 
-with open("report.txt", "a") as report:
+def read_variable_data():
+    rows = []
+    try:
+        with open("data.txt") as file:
+            for line in file:
+                values = list(map(int, line.split()))
+                if len(values) == 2:
+                    rows.append(values)
+    except OSError:
+        return []
 
-    report.write("\n--- AI MODEL OUTPUT ---\n")
+    return rows
 
 
-    if len(data) == 0:
-        report.write("No data available for AI analysis.\n")
+def read_report():
+    try:
+        with open("report.txt") as file:
+            return file.read()
+    except OSError:
+        return ""
 
-    elif len(data[0]) != 2:
-        report.write("Invalid data format for AI model.\n")
 
-    else:
-        data = np.array(data)
-        pred = model.predict(data)
+def extract_memory_saved(report_text):
+    match = re.search(r"Memory saved:\s*(\d+)", report_text)
+    return int(match.group(1)) if match else 0
 
-        total_score = 0
 
-        for i in range(len(pred)):
-            name = names[i] if i < len(names) else f"var{i+1}"
+def build_feature_vector(rows, report_text):
+    total_variables = len(rows)
+    unused_count = sum(1 for used, _ in rows if used == 0)
+    duplicate_count = sum(1 for _, duplicate in rows if duplicate == 1)
+    uninitialized_count = report_text.count("Used before initialization:")
+    memory_saved = extract_memory_saved(report_text)
+    weighted_score = unused_count * 3 + duplicate_count * 4 + uninitialized_count * 5 + memory_saved // 2
 
-            if pred[i] == 0:
-                label = "GOOD"
-                score = 0
-            elif pred[i] == 1:
-                label = "WARNING (Unused)"
-                score = 3
-            else:
-                label = "CRITICAL (Duplicate)"
-                score = 5
+    return np.array(
+        [[unused_count, duplicate_count, uninitialized_count, memory_saved, weighted_score]]
+    ), {
+        "total_variables": total_variables,
+        "unused_count": unused_count,
+        "duplicate_count": duplicate_count,
+        "uninitialized_count": uninitialized_count,
+        "memory_saved": memory_saved,
+        "weighted_score": weighted_score,
+    }
 
-            total_score += score
-            report.write(f"{name}: {label} | Score: {score}\n")
 
-        max_score = len(pred) * 5
+def label_from_prediction(prediction):
+    if prediction == 0:
+        return "Low"
+    if prediction == 1:
+        return "Medium"
+    return "High"
 
-        if max_score > 0:
-            quality = 100 - int((total_score / max_score) * 100)
-            quality = max(0, quality)
-        else:
-            quality = 100
 
-        report.write("\n--- AI Code Quality ---\n")
-        report.write(f"Total Risk Score: {total_score}\n")
-        report.write(f"Overall Quality: {quality}/100\n")
+def priority_from_label(label):
+    if label == "Low":
+        return "Low priority cleanup"
+    if label == "Medium":
+        return "Recommended optimization pass"
+    return "Immediate attention recommended"
 
-        report.write("\n--- AI Insights ---\n")
 
-        unused = sum(1 for d in data if d[0] == 0)
-        duplicate = sum(1 for d in data if d[1] == 1)
+def quality_score(stats):
+    penalty = (
+        stats["unused_count"] * 10
+        + stats["duplicate_count"] * 15
+        + stats["uninitialized_count"] * 20
+        + min(stats["memory_saved"], 40)
+    )
+    return max(0, 100 - penalty)
 
-        if unused > 0:
-            report.write("Unused variables detected → memory inefficiency.\n")
 
-        if duplicate > 0:
-            report.write("Duplicate declarations detected → redundancy.\n")
+def main():
+    rows = read_variable_data()
+    report_text = read_report()
 
-        if unused == 0 and duplicate == 0:
-            report.write("Code is well optimized.\n")
+    with open("report.txt", "a") as report:
+        report.write("\n--- AI Severity Assessment ---\n")
+
+        if not rows or not report_text:
+            report.write("• AI assessment skipped because analysis data is incomplete\n")
+            return
+
+        training_x, training_y = build_training_data()
+        model = RandomForestClassifier(n_estimators=50, random_state=42)
+        model.fit(training_x, training_y)
+
+        feature_vector, stats = build_feature_vector(rows, report_text)
+        prediction = int(model.predict(feature_vector)[0])
+        probabilities = model.predict_proba(feature_vector)[0]
+
+        risk_label = label_from_prediction(prediction)
+        confidence = max(probabilities) * 100
+        quality = quality_score(stats)
+
+        report.write(f"• Risk Level: {risk_label}\n")
+        report.write(f"• Optimization Priority: {priority_from_label(risk_label)}\n")
+        report.write(f"• Estimated Quality Score: {quality}/100\n")
+        report.write(f"• Model Confidence: {confidence:.1f}%\n")
+        report.write(
+            "• AI Features Used: "
+            f"unused={stats['unused_count']}, "
+            f"duplicate={stats['duplicate_count']}, "
+            f"use-before-init={stats['uninitialized_count']}, "
+            f"memory-saved={stats['memory_saved']} bytes\n"
+        )
+
+
+if __name__ == "__main__":
+    main()
