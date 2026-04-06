@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Rule-Based Intelligent C Code Analyzer for Memory Optimization</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #dfeaf4;
+            margin: 0;
+            padding: 20px;
+            color: #222;
+        }
+
+        .main {
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+
+        h1 {
+            text-align: center;
+            color: #1f4e79;
+            margin-bottom: 8px;
+        }
+
+        .subtitle {
+            text-align: center;
+            margin-bottom: 20px;
+            color: #444;
+        }
+
+        .row {
+            display: flex;
+            gap: 20px;
+        }
+
+        .box {
+            flex: 1;
+            background: #ffffff;
+            border: 1px solid #9fbad0;
+            border-radius: 4px;
+            padding: 15px;
+        }
+
+        h2 {
+            margin-top: 0;
+            color: #1f4e79;
+            font-size: 20px;
+        }
+
+        textarea {
+            width: 100%;
+            height: 380px;
+            border: 1px solid #999;
+            padding: 10px;
+            font-family: monospace;
+            font-size: 14px;
+            resize: vertical;
+            box-sizing: border-box;
+        }
+
+        button {
+            margin-top: 12px;
+            padding: 10px 20px;
+            background-color: #1f77b4;
+            color: white;
+            border: none;
+            border-radius: 3px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background-color: #185d8c;
+        }
+
+        .report {
+            height: 420px;
+            border: 1px solid #999;
+            background: #f9f9f9;
+            padding: 10px;
+            overflow-y: auto;
+            white-space: pre-wrap;
+            font-family: monospace;
+            font-size: 14px;
+            box-sizing: border-box;
+        }
+
+        .report-line {
+            min-height: 20px;
+        }
+
+        .bullet-dot {
+            display: inline-block;
+            width: 5px;
+            height: 5px;
+            margin-right: 6px;
+            border-radius: 50%;
+            background: #000;
+            vertical-align: middle;
+        }
+
+        @media (max-width: 800px) {
+            .row {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="main">
+        <h1>Rule-Based Intelligent C Code Analyzer for Memory Optimization</h1>
+        <p class="subtitle">Enter C code and view the analysis report.</p>
+
+        <form method="POST">
+            <div class="row">
+                <div class="box">
+                    <h2>Input C Code</h2>
+                    <textarea name="code" placeholder="Write your C code here...">CODE_VALUE</textarea>
+                    <button type="submit">Analyze</button>
+                </div>
+
+                <div class="box">
+                    <h2>Analysis Report</h2>
+                    <div class="report">OUTPUT</div>
+                </div>
+            </div>
+        </form>
+    </div>
+</body>
+</html>
