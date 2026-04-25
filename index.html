@@ -73,6 +73,28 @@
             background-color: #185d8c;
         }
 
+        .button-row {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .secondary-button {
+            background-color: #4f6d7a;
+        }
+
+        .secondary-button:hover {
+            background-color: #405863;
+        }
+
+        .print-button {
+            background-color: #6b5b95;
+        }
+
+        .print-button:hover {
+            background-color: #58497d;
+        }
+
         .report {
             height: 420px;
             border: 1px solid #999;
@@ -104,6 +126,36 @@
                 flex-direction: column;
             }
         }
+
+        @media print {
+            body {
+                background-color: #ffffff;
+                padding: 0;
+            }
+
+            .box:first-child,
+            .subtitle,
+            .button-row,
+            .report button {
+                display: none !important;
+            }
+
+            .row,
+            .box {
+                display: block;
+                width: 100%;
+                border: none;
+                padding: 0;
+            }
+
+            .report {
+                height: auto;
+                overflow: visible;
+                border: none;
+                background: #ffffff;
+                padding: 0;
+            }
+        }
     </style>
 </head>
 <body>
@@ -112,16 +164,25 @@
         <p class="subtitle">Enter C code and view the analysis report.</p>
 
         <form method="POST">
+            <input type="hidden" name="original_code" value="ORIGINAL_CODE_VALUE">
             <div class="row">
                 <div class="box">
                     <h2>Input C Code</h2>
                     <textarea name="code" placeholder="Write your C code here...">CODE_VALUE</textarea>
-                    <button type="submit">Analyze</button>
+                    <div class="button-row">
+                        <button type="submit" name="action" value="analyze">Analyze</button>
+                        <button type="submit" name="action" value="optimize" class="secondary-button">Optimize Code</button>
+                        RESTORE_BUTTON
+                    </div>
                 </div>
 
                 <div class="box">
                     <h2>Analysis Report</h2>
                     <div class="report">OUTPUT</div>
+                    <div class="button-row">
+                        <button type="submit" formaction="/download-report" class="secondary-button">Download Report</button>
+                        <button type="button" class="print-button" onclick="window.print()">Save as PDF</button>
+                    </div>
                 </div>
             </div>
         </form>

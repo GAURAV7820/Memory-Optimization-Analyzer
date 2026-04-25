@@ -75,8 +75,10 @@ void flushPendingIdentifierUse(){
     declarationMode=1;
 }
 
-[a-zA-Z_][a-zA-Z0-9_]*\([ \t]*\) {
+[a-zA-Z_][a-zA-Z0-9_]*/[ \t]*\( {
     flushPendingIdentifierUse();
+    lastVarIndex=-1;
+    pendingIdentifierUse=0;
 }
 
 [a-zA-Z_][a-zA-Z0-9_]* {
@@ -173,7 +175,7 @@ int main(){
     int totalSavings=0;
 
     fprintf(report,"===== SMARTMEMAI ANALYSIS REPORT =====\n");
-    fprintf(report,"• Rule Engine: explicit compiler-style rules\n");
+    fprintf(report,"• Code checked using fixed rules\n");
     fprintf(report,"\n--- Symbol Table ---\n");
     fprintf(report,"--------------------------------------------------\n");
     fprintf(report,"Name   Type   Used   Initialized   Line\n");
@@ -232,6 +234,7 @@ int main(){
 
         if(vars[i].isDuplicate){
             issueCount++;
+            totalSavings += size;
             fprintf(report,"• Rule R2 [Duplicate Declaration]: %s is declared more than once in the same scope\n",vars[i].name);
             fprintf(report,"• Suggestion: Keep one declaration of %s or rename the duplicate variable\n",vars[i].name);
         }

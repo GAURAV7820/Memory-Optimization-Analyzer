@@ -98,6 +98,32 @@ def quality_score(stats):
     return max(0, 100 - penalty)
 
 
+def code_category(score):
+    if score >= 90:
+        return "Excellent"
+    if score >= 75:
+        return "Good"
+    if score >= 50:
+        return "Moderate"
+    return "Poor"
+
+
+def priority_order(stats):
+    priorities = []
+
+    if stats["uninitialized_count"] > 0:
+        priorities.append("Initialize variables before use")
+    if stats["unused_count"] > 0:
+        priorities.append("Remove unused variables")
+    if stats["duplicate_count"] > 0:
+        priorities.append("Resolve duplicate declarations")
+
+    if not priorities:
+        priorities.append("No urgent optimization needed")
+
+    return " > ".join(priorities)
+
+
 def main():
     rows = read_variable_data()
     report_text = read_report()
@@ -124,6 +150,8 @@ def main():
         report.write(f"• Risk Level: {risk_label}\n")
         report.write(f"• Optimization Priority: {priority_from_label(risk_label)}\n")
         report.write(f"• Estimated Quality Score: {quality}/100\n")
+        report.write(f"• Code Category: {code_category(quality)}\n")
+        report.write(f"• Priority Order: {priority_order(stats)}\n")
         report.write(f"• Model Confidence: {confidence:.1f}%\n")
         report.write(
             "• AI Features Used: "

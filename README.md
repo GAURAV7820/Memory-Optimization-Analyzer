@@ -1,152 +1,126 @@
-# 🚀 SmartMemAI – Intelligent Compiler-Based Code Analyzer
+# SmartMemAI - Rule-Based Memory Optimizer for C Code
 
-## 📌 Overview
+## Overview
 
-SmartMemAI is an intelligent code analysis tool that combines **compiler design concepts** with **AI-based insights**.
-It analyzes C/C++ code to detect issues such as **unused variables**, **duplicate declarations**, and **memory inefficiencies**, while also providing an AI-driven quality score.
+SmartMemAI is a lightweight static analysis project for C programs. It uses Flex-based lexical analysis and rule-based checks to detect memory-related issues such as unused variables, duplicate declarations, and use before initialization. It then estimates memory impact and adds an AI-assisted severity summary.
 
----
+The project also includes a simple Flask web interface where a user can:
+- analyze code
+- optimize simple unused declarations
+- restore original code after optimization
+- download the report
+- save the report as PDF through the browser
 
-## 🎯 Features
+## Core Features
 
-* 🔍 **Symbol Table Generation**
+- Symbol table generation with variable name, type, usage, initialization, and line number
+- Rule-based findings:
+  - `R1` Unused Variable
+  - `R2` Duplicate Declaration
+  - `R3` Use Before Initialization
+- Memory analysis:
+  - memory before optimization
+  - memory after optimization
+  - estimated removable memory
+- AI severity assessment:
+  - risk level
+  - optimization priority
+  - estimated quality score
+  - code category
+  - priority order
+- Assisted optimization for simple unused variable declarations
+- Restore original code after optimization
 
-  * Tracks variables with name, type, scope, and usage
+## Tech Stack
 
-* ⚠️ **Error & Optimization Detection**
+- `Flex` for lexical analysis
+- `C` for the analyzer logic
+- `Python` with `Flask` for the web backend
+- `Python` with `scikit-learn` for AI severity scoring
+- `HTML/CSS` for the interface
 
-  * Detects unused variables
-  * Identifies duplicate declarations
-  * Scope-aware analysis
+## Project Files
 
-* 💾 **Memory Analysis**
+- `smartmemai.l` - main Flex rule-based analyzer
+- `ai_model.py` - AI severity assessment module
+- `app.py` - Flask backend
+- `index.html` - web interface
+- `run.sh` - build and run script
+- `.gitignore` - ignores generated files
 
-  * Calculates memory before and after optimization
-  * Shows memory saved
+Generated runtime files:
+- `input.c`
+- `report.txt`
+- `data.txt`
+- `names.txt`
+- `lex.yy.c`
+- `smartmemai`
 
-* 🤖 **AI-Based Code Evaluation**
+## Working Flow
 
-  * Uses Machine Learning (Random Forest)
-  * Classifies variables as:
+1. The user enters C code in the web interface.
+2. `app.py` stores the code in `input.c`.
+3. `run.sh` runs Flex and compiles the analyzer.
+4. `smartmemai.l` scans the code and generates the rule-based report.
+5. `ai_model.py` appends the AI severity assessment.
+6. The final report is shown in the browser.
 
-    * GOOD
-    * WARNING (Unused)
-    * CRITICAL (Duplicate)
-  * Generates overall code quality score
+## How to Run
 
-* 🧠 **Scope Handling**
-
-  * Supports nested scopes using `{ }`
-  * Correctly handles variable shadowing
-
----
-
-## 🛠️ Tech Stack
-
-* **Lex/Flex** – Lexical Analysis
-* **C** – Core Compiler Logic
-* **Python (scikit-learn)** – AI Model
-* **Git & GitHub** – Version Control
-
----
-
-## 📂 Project Structure
-
-```
-SmartMemAI/
-│
-├── smartmemai.l     # Lex analyzer
-├── ai_model.py      # AI model for analysis
-├── app.py           # (Optional) Web interface
-├── input.c          # Input test file
-├── report.txt       # Generated output
-├── data.txt         # Data for AI model
-├── names.txt        # Variable names
-```
-
----
-
-## ⚙️ How to Run
-
-### 🔹 1. Install Dependencies
-
-```bash
-sudo apt install flex gcc
-pip install numpy scikit-learn
-```
-
----
-
-### 🔹 2. Compile Lex Code
+### Install dependencies
 
 ```bash
-flex smartmemai.l
-gcc lex.yy.c -o analyzer -lfl
+pip3 install flask numpy scikit-learn
 ```
 
----
+Make sure `flex` and `gcc` are installed on your system.
 
-### 🔹 3. Run Analyzer
+### Run the web app
 
 ```bash
-./analyzer
+python3 -m flask --app app run --host 0.0.0.0 --port 5001
 ```
 
----
+Then open:
 
-### 🔹 4. View Output
+```text
+http://localhost:5001
+```
+
+### Run only the analyzer
 
 ```bash
+./run.sh
 cat report.txt
 ```
 
----
+## Sample Input
 
-## 🧪 Sample Output
-
-```
---- Symbol Table ---
-Name     Type     Used     Line   Scope
-
---- Optimization Report ---
-Unused variable: x
-Duplicate variable: y
-
---- Memory Analysis ---
-Memory saved: 16 bytes
-
---- AI MODEL OUTPUT ---
-x: WARNING
-y: CRITICAL
-
-Overall Quality: 85/100
+```c
+int main() {
+    int a;
+    int b = 10;
+    int c = a + b;
+    int d = a + b + c;
+    return a;
+}
 ```
 
----
+## Current Limitations
 
-## 🔮 Future Scope
+- It is lexer-based, not a full parser-based compiler
+- Automatic optimization only removes simple unused declarations safely
+- Complex declarations, arrays, and pointers are not auto-optimized
+- The AI module is a severity scorer, not a replacement for the rule engine
 
-* Syntax error detection (missing `;`, `,`)
-* Function-level analysis
-* Dead code detection
-* Web-based UI improvements
-* Support for more programming languages
+## Future Scope
 
----
+- Undeclared variable detection
+- Array usage analysis
+- Pointer and dynamic memory analysis
+- Parser integration using Yacc/Bison
+- More advanced optimization suggestions
 
-## 👨‍💻 Author
+## Author
 
-**Gaurav Singh**
-Computer Science Engineering (CSE)
-
----
-
-## ⭐ Contribution
-
-Feel free to fork the repository and improve the project!
-
----
-
-## 📢 Note
-
-This project demonstrates how **compiler design + AI** can be combined to build intelligent developer tools.
+Gaurav Singh
