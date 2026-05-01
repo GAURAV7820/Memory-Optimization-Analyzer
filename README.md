@@ -1,126 +1,277 @@
-# SmartMemAI - Rule-Based Memory Optimizer for C Code
+# 🧠 SmartMemAI – Memory Optimization Analyzer for C Programs
 
-## Overview
+SmartMemAI is a **rule-based static analysis tool** for C programs that detects memory inefficiencies such as unused variables, duplicate declarations, and improper initialization.
 
-SmartMemAI is a lightweight static analysis project for C programs. It uses Flex-based lexical analysis and rule-based checks to detect memory-related issues such as unused variables, duplicate declarations, and use before initialization. It then estimates memory impact and adds an AI-assisted severity summary.
+It combines **Lex (Flex)** for parsing with **Python-based AI insights** to generate a structured and detailed optimization report.
 
-The project also includes a simple Flask web interface where a user can:
-- analyze code
-- optimize simple unused declarations
-- restore original code after optimization
-- download the report
-- save the report as PDF through the browser
+---
 
-## Core Features
+## 🚀 Features
 
-- Symbol table generation with variable name, type, usage, initialization, and line number
-- Rule-based findings:
-  - `R1` Unused Variable
-  - `R2` Duplicate Declaration
-  - `R3` Use Before Initialization
-- Memory analysis:
-  - memory before optimization
-  - memory after optimization
-  - estimated removable memory
-- AI severity assessment:
-  - risk level
-  - optimization priority
-  - estimated quality score
-  - code category
-  - priority order
-- Assisted optimization for simple unused variable declarations
-- Restore original code after optimization
+* 🔍 Detects **unused variables**
+* ⚠️ Identifies **duplicate declarations**
+* 🚫 Flags **use before initialization**
+* 📊 Provides **memory usage analysis (before vs after optimization)**
+* 🤖 Integrates with a Python model for additional insights
+* 📄 Generates a structured **analysis report**
+* 🔄 Supports **code optimization and reversible transformations**
 
-## Tech Stack
+---
 
-- `Flex` for lexical analysis
-- `C` for the analyzer logic
-- `Python` with `Flask` for the web backend
-- `Python` with `scikit-learn` for AI severity scoring
-- `HTML/CSS` for the interface
+## 🛠️ Tech Stack
 
-## Project Files
+* **C** – Core analysis logic
+* **Lex / Flex** – Tokenization & parsing
+* **Python** – AI model integration
+* **Flask** *(optional)* – Web interface
 
-- `smartmemai.l` - main Flex rule-based analyzer
-- `ai_model.py` - AI severity assessment module
-- `app.py` - Flask backend
-- `index.html` - web interface
-- `run.sh` - build and run script
-- `.gitignore` - ignores generated files
+---
 
-Generated runtime files:
-- `input.c`
-- `report.txt`
-- `data.txt`
-- `names.txt`
-- `lex.yy.c`
-- `smartmemai`
+## 📂 Project Structure
 
-## Working Flow
+```
+CD-PBL/
+│
+├── lexer.l              # Lex file (core analyzer)
+├── input.c              # Input C program
+├── report.txt           # Generated analysis report
+├── data.txt             # Features for AI model
+├── names.txt            # Variable names
+├── ai_model.py          # Python-based model
+├── app.py               # Flask UI (optional)
+└── README.md
+```
 
-1. The user enters C code in the web interface.
-2. `app.py` stores the code in `input.c`.
-3. `run.sh` runs Flex and compiles the analyzer.
-4. `smartmemai.l` scans the code and generates the rule-based report.
-5. `ai_model.py` appends the AI severity assessment.
-6. The final report is shown in the browser.
+---
 
-## How to Run
+## ⚙️ How It Works
 
-### Install dependencies
+### 1. Lexical Analysis
+
+Parses the input C code and identifies:
+
+* Variables
+* Scope
+* Usage patterns
+
+### 2. Rule-Based Detection
+
+Applies predefined rules:
+
+* **R1:** Unused Variable
+* **R2:** Duplicate Declaration
+* **R3:** Use Before Initialization
+
+### 3. Memory Analysis
+
+Computes:
+
+* Memory before optimization
+* Memory after optimization
+* Memory saved
+
+### 4. AI Integration
+
+Sends extracted features to a Python model for additional classification and insights.
+
+---
+
+## ▶️ How to Run
+
+### 🔹 Step 1: Compile
 
 ```bash
-pip3 install flask numpy scikit-learn
+flex lexer.l
+gcc lex.yy.c -o analyzer
 ```
 
-Make sure `flex` and `gcc` are installed on your system.
-
-### Run the web app
+### 🔹 Step 2: Execute
 
 ```bash
-python3 -m flask --app app run --host 0.0.0.0 --port 5001
+./analyzer
 ```
 
-Then open:
+### 🔹 Step 3: View Report
 
-```text
-http://localhost:5001
+```
+report.txt
 ```
 
-### Run only the analyzer
+---
+
+### 🔹 (Optional) Run Web Interface
 
 ```bash
-./run.sh
-cat report.txt
+python3 app.py
 ```
 
-## Sample Input
+Open in browser:
+
+```
+http://127.0.0.1:5000
+```
+
+---
+
+## 📊 Sample Output
+
+```
+--- Optimization Report ---
+Unused variable: unused1
+Duplicate variable: d
+Used before initialization: unused2
+
+--- Memory Analysis ---
+Memory before: 16 bytes
+Memory after: 8 bytes
+Memory saved: 8 bytes
+```
+
+---
+
+## 🔄 Code Optimization & Reversibility
+
+SmartMemAI can also **generate optimized code** by removing unnecessary variables and redundancies.
+It supports **reversing the optimization** to restore the original version when needed.
+
+---
+
+### ✨ Optimization Capabilities
+
+* Removes **unused variables**
+* Eliminates **duplicate declarations**
+* Keeps only **necessary variables**
+* Preserves program correctness
+
+---
+
+### 🔁 Reverse Optimization
+
+* Restores original code from optimized version
+* Useful for:
+
+  * Debugging
+  * Comparison
+  * Learning/analysis
+
+> ⚠️ Reverse functionality is implemented using stored analysis metadata.
+
+---
+
+## 🧪 Example
+
+### 🔹 Original Code
 
 ```c
+#include <stdio.h>
+
 int main() {
     int a;
-    int b = 10;
-    int c = a + b;
-    int d = a + b + c;
-    return a;
+    int b;
+    int c;
+
+    a = 10;
+    b = a + 5;
+
+    int d;
+    int d;   // duplicate
+
+    int unused1;
+    int unused2;
+
+    int e = b + 2;
+
+    printf("%d %d %d\n", a, b, e);
+    return 0;
 }
 ```
 
-## Current Limitations
+---
 
-- It is lexer-based, not a full parser-based compiler
-- Automatic optimization only removes simple unused declarations safely
-- Complex declarations, arrays, and pointers are not auto-optimized
-- The AI module is a severity scorer, not a replacement for the rule engine
+### 🔹 Optimized Code
 
-## Future Scope
+```c
+#include <stdio.h>
 
-- Undeclared variable detection
-- Array usage analysis
-- Pointer and dynamic memory analysis
-- Parser integration using Yacc/Bison
-- More advanced optimization suggestions
+int main() {
+    int a;
+    int b;
 
-## Author
+    a = 10;
+    b = a + 5;
 
-Gaurav Singh
+    int d;
+
+    int e = b + 2;
+
+    printf("%d %d %d\n", a, b, e);
+    return 0;
+}
+```
+
+---
+
+### 🔹 Restored Code
+
+```c
+#include <stdio.h>
+
+int main() {
+    int a;
+    int b;
+    int c;
+
+    a = 10;
+    b = a + 5;
+
+    int d;
+    int d;
+
+    int unused1;
+    int unused2;
+
+    int e = b + 2;
+
+    printf("%d %d %d\n", a, b, e);
+    return 0;
+}
+```
+
+---
+
+## 🎯 Key Concepts
+
+* Lexical Analysis
+* Symbol Table Management
+* Static Code Analysis
+* Memory Optimization
+* Rule-Based Systems
+* Basic AI Integration
+
+---
+
+## 🧠 Challenges Faced
+
+* Correct **variable usage tracking**
+* Preventing **state leakage between tokens**
+* Distinguishing **declaration vs usage**
+* Handling **function calls (e.g., printf) safely**
+
+---
+
+## 📌 Future Improvements
+
+* Full parser integration (**YACC/Bison**)
+* Support for complex expressions
+* Advanced AI-based suggestions
+* Improved UI/visualization
+* Multi-language support
+
+---
+
+## 👨‍💻 Author
+
+**Gaurav Singh**
+Computer Science Engineering Student
+
+---
