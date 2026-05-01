@@ -1,3 +1,5 @@
+from io import BytesIO
+
 from flask import Flask, request, send_file
 import html
 import re
@@ -153,13 +155,11 @@ def index():
 @app.route("/download-report", methods=["POST"])
 def download_report():
     code = request.form.get("code", "")
-    report_text = read_report_text()
-
-    if report_text.strip() == "Report is not available yet.":
-        _, report_text = run_analyzer(code)
+    _, report_text = run_analyzer(code)
+    report_file = BytesIO(report_text.encode("utf-8"))
 
     return send_file(
-        "report.txt",
+        report_file,
         as_attachment=True,
         download_name="smartmemai_report.txt",
         mimetype="text/plain",

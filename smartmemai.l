@@ -234,7 +234,6 @@ int main(){
 
         if(vars[i].isDuplicate){
             issueCount++;
-            totalSavings += size;
             fprintf(report,"• Rule R2 [Duplicate Declaration]: %s is declared more than once in the same scope\n",vars[i].name);
             fprintf(report,"• Suggestion: Keep one declaration of %s or rename the duplicate variable\n",vars[i].name);
         }
