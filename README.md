@@ -1,3 +1,7 @@
+![C](https://img.shields.io/badge/Language-C-blue)
+![Lex](https://img.shields.io/badge/Tool-Lex%2FFlex-orange)
+![Python](https://img.shields.io/badge/AI-Python-green)
+![Status](https://img.shields.io/badge/Status-Completed-success)
 # 🧠 SmartMemAI – Memory Optimization Analyzer for C Programs
 
 SmartMemAI is a **rule-based static analysis tool** for C programs that detects memory inefficiencies such as unused variables, duplicate declarations, and improper initialization.
